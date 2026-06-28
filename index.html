@@ -486,16 +486,37 @@
   <div class="ftitle">👩‍🏫 Painel do Professor</div>
   <div class="fmsg" id="teacher-summary"></div>
   <div id="teacher-list" style="width:100%;max-width:540px;display:flex;flex-direction:column;gap:10px"></div>
-  <div class="fmsg" style="font-size:.82rem;max-width:480px">💡 Os resultados ficam salvos <strong>neste navegador/dispositivo</strong>. Baixe um arquivo por turma (CSV abre no Excel/Google Planilhas).</div>
+
+  <div class="tcard" style="flex-direction:column;align-items:stretch;width:100%;max-width:540px;gap:8px">
+    <div class="tname" style="font-size:1rem">☁️ Envio automático para o Google Planilhas</div>
+    <div class="fmsg" id="endpoint-status" style="font-size:.82rem;margin:0;text-align:left"></div>
+    <input class="name-input" id="endpoint-input" type="text" placeholder="Cole aqui a URL do app da web (…/exec)" style="text-align:left;font-size:.9rem;padding:11px 14px">
+    <div class="tbtns" style="flex-wrap:wrap">
+      <button class="btn btn-primary tbtn" onclick="saveEndpointFromInput()">💾 Salvar URL</button>
+      <button class="btn btn-ghost tbtn" onclick="flushQueue()">📤 Enviar pendentes</button>
+      <button class="btn btn-ghost tbtn" onclick="testEndpoint()">🔗 Abrir/testar</button>
+    </div>
+    <div class="tmeta">Configure a mesma URL em cada tablet (ou já deixe colada no arquivo). Veja o passo a passo em <strong>INTEGRACAO_GOOGLE.md</strong>.</div>
+  </div>
+
+  <div class="fmsg" style="font-size:.82rem;max-width:480px">💡 Tudo também fica salvo <strong>neste tablet</strong> como backup — dá para baixar um arquivo por turma (CSV/TXT) a qualquer momento.</div>
   <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:8px">
     <button class="btn btn-primary" onclick="closeTeacher()">← Voltar</button>
-    <button class="btn btn-ghost" onclick="clearDB()" style="border-color:var(--bad);color:var(--bad)">🗑️ Apagar tudo</button>
+    <button class="btn btn-ghost" onclick="clearDB()" style="border-color:var(--bad);color:var(--bad)">🗑️ Apagar deste tablet</button>
   </div>
 </div>
 
 <canvas id="confetti"></canvas>
 
 <script>
+/* ===================================================================
+   CONFIGURAÇÃO DO ENVIO PARA O GOOGLE PLANILHAS
+   Cole aqui a URL do "app da web" do Google Apps Script (ver INTEGRACAO_GOOGLE.md).
+   Ex.: const SHEET_ENDPOINT = "https://script.google.com/macros/s/AKfyc.../exec";
+   (Se preferir, dá para colar a URL pelo Painel do Professor, em cada tablet.)
+   =================================================================== */
+const SHEET_ENDPOINT = "";
+
 /* ===================== DADOS ===================== */
 const ORG = {
   membrana:{name:"Membrana Plasmática",emoji:"🧱",color:"var(--c-membrana)",rgb:"28,134,168",tag:"Revestimento",
@@ -803,6 +824,8 @@ function saveSessionToDB(){
     respostas
   };
   if(dbAdd(rec))finishSaved=true;
+  queueAdd(rec);          // fila de envio para o Google Planilhas (com backup offline)
+  flushQueue();
 }
 
 /* ===================== RELATÓRIO EM ARQUIVO TEXTO ===================== */
@@ -842,6 +865,38 @@ function dbLoad(){try{return JSON.parse(localStorage.getItem(DB_KEY))||[];}catch
 function dbSave(a){try{localStorage.setItem(DB_KEY,JSON.stringify(a));return true;}catch(e){alert('Não foi possível salvar neste navegador (armazenamento bloqueado).');return false;}}
 function dbAdd(rec){const a=dbLoad();a.push(rec);return dbSave(a);}
 
+/* ---- Envio para Google Planilhas (Apps Script) + fila offline ---- */
+const ENDPOINT_KEY='expedicao_endpoint';
+const QUEUE_KEY='expedicao_pending';
+function sheetEndpoint(){try{return (localStorage.getItem(ENDPOINT_KEY)||SHEET_ENDPOINT||'').trim();}catch(e){return SHEET_ENDPOINT||'';}}
+function setEndpoint(url){try{localStorage.setItem(ENDPOINT_KEY,(url||'').trim());}catch(e){}}
+function queueLoad(){try{return JSON.parse(localStorage.getItem(QUEUE_KEY))||[];}catch(e){return [];}}
+function queueSaveArr(a){try{localStorage.setItem(QUEUE_KEY,JSON.stringify(a));}catch(e){}}
+function queueAdd(rec){const q=queueLoad();q.push(rec);queueSaveArr(q);}
+async function flushQueue(){
+  const url=sheetEndpoint();
+  if(!url){updateEndpointStatus();return;}
+  let q=queueLoad();
+  if(!q.length){updateEndpointStatus();return;}
+  const remaining=[];
+  for(const rec of q){
+    try{
+      await fetch(url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(rec)});
+      // mode:no-cors → resposta opaca; só falha em erro de rede (aí mantém na fila)
+    }catch(e){remaining.push(rec);}
+  }
+  queueSaveArr(remaining);
+  updateEndpointStatus();
+}
+function updateEndpointStatus(){
+  const el=document.getElementById('endpoint-status'); if(!el)return;
+  const url=sheetEndpoint(), pend=queueLoad().length;
+  if(!url){el.innerHTML='⚠️ <strong>Não configurado</strong> — os resultados ficam só neste tablet. Cole a URL abaixo.';el.style.color='var(--gold)';}
+  else{el.innerHTML=`✅ Configurado.${pend?` <strong>${pend}</strong> resultado(s) aguardando envio.`:' Tudo enviado. 🎉'}`;el.style.color=pend?'var(--gold)':'var(--good)';}
+}
+window.addEventListener('load',()=>{setTimeout(flushQueue,800);});
+window.addEventListener('online',flushQueue);
+
 function safe(s){return String(s||'').replace(/[^\p{L}\p{N}]+/gu,'_').replace(/^_+|_+$/g,'').slice(0,40)||'sem_nome';}
 function esc(s){return String(s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
 function b64(s){return btoa(unescape(encodeURIComponent(s)));}
@@ -854,7 +909,9 @@ function downloadFile(content,filename,mime){
   setTimeout(()=>URL.revokeObjectURL(url),1500);
 }
 
-function openTeacher(){buildTeacher();document.getElementById('teacher-panel').classList.add('show');}
+function openTeacher(){buildTeacher();const i=document.getElementById('endpoint-input');if(i)i.value=sheetEndpoint();updateEndpointStatus();document.getElementById('teacher-panel').classList.add('show');}
+function saveEndpointFromInput(){const v=document.getElementById('endpoint-input').value.trim();setEndpoint(v);updateEndpointStatus();if(v)flushQueue();}
+function testEndpoint(){const url=sheetEndpoint();if(!url){alert('Cole e salve a URL primeiro.');return;}window.open(url,'_blank');}
 function closeTeacher(){document.getElementById('teacher-panel').classList.remove('show');}
 function buildTeacher(){
   const all=dbLoad(), byTurma={};
@@ -874,6 +931,7 @@ function buildTeacher(){
         <button class="btn btn-ghost tbtn" onclick="exportTurma('${b64(t)}','txt')">📄 TXT</button>
       </div></div>`;
   }).join('') : '<div style="color:var(--muted)">Nenhuma turma registrada ainda.</div>';
+  updateEndpointStatus();
 }
 function exportTurma(enc,fmt){
   const turma=ub64(enc);
