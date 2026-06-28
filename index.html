@@ -284,7 +284,7 @@
           </g>
 
           <!-- ===== CITOPLASMA ===== -->
-          <g class="organelle" data-id="citoplasma" data-cx="360" data-cy="300" data-r="240">
+          <g class="organelle" data-id="citoplasma" data-cx="360" data-cy="300" data-r="240" data-px="198" data-py="178">
             <path d="M360,78 C492,72 604,114 648,194 C688,268 676,372 626,436 C572,506 460,540 360,540 C262,540 160,514 108,438 C64,366 72,260 128,190 C178,120 258,84 360,78 Z"
                   fill="url(#cytoGrad)"/>
             <!-- brilho glossy translúcido -->
@@ -640,22 +640,27 @@ function drawCallout(el){
   const id=el.dataset.id, o=ORG[id]; if(!o)return;
   const cx=+el.dataset.cx, cy=+el.dataset.cy, r=+el.dataset.r;
   CALLOUT.setAttribute('viewBox',SVG.getAttribute('viewBox'));
-  const fs=Math.max(11,curVB.w*0.038);
+  // ponto para onde a seta aponta: usa data-px/py se existir (ex.: citoplasma → área sem organela)
+  const px=el.dataset.px?+el.dataset.px:cx, py=el.dataset.py?+el.dataset.py:cy;
   const name=o.name.toUpperCase();
+  const label=o.emoji+'  '+name;
+  // Geometria TODA proporcional ao zoom: a fonte encolhe até a pílula caber no quadro,
+  // sem depender de constantes fixas (evita cortar rótulos longos em zooms apertados).
+  const U=name.length*0.62+5.4;          // largura da pílula em múltiplos da fonte (texto+emoji+padding)
+  const fs=Math.min(curVB.w*0.058,(curVB.w*0.94)/U);
+  const pillW=fs*U, pillH=fs*1.9, half=pillW/2;
   const m=curVB.h*0.10;
   // legenda preferencialmente ACIMA da organela; se não couber, ABAIXO; sempre dentro do quadro
   let labelY=cy-r-curVB.h*0.06;
-  if(labelY<curVB.y+m) labelY=cy+r+curVB.h*0.10;
-  labelY=Math.max(curVB.y+m,Math.min(labelY,curVB.y+curVB.h-m));
-  // X centrado na organela, mas mantendo a pílula inteira dentro do quadro
-  const halfPill=name.length*fs*0.31+12;
-  let labelX=Math.max(curVB.x+halfPill+4,Math.min(cx,curVB.x+curVB.w-halfPill-4));
+  if(labelY<curVB.y+m+pillH/2) labelY=cy+r+curVB.h*0.10;
+  labelY=Math.max(curVB.y+m+pillH/2,Math.min(labelY,curVB.y+curVB.h-m-pillH/2));
+  const labelX=Math.max(curVB.x+half+curVB.w*0.02,Math.min(cx,curVB.x+curVB.w-half-curVB.w*0.02));
   CALLOUT.innerHTML=`
-    <line x1="${cx}" y1="${cy}" x2="${labelX}" y2="${labelY}" stroke="${cssVar(o.color)}" stroke-width="${curVB.w*0.004}" stroke-dasharray="${curVB.w*0.012} ${curVB.w*0.012}" opacity=".85"/>
-    <circle cx="${cx}" cy="${cy}" r="${curVB.w*0.012}" fill="${cssVar(o.color)}"/>
+    <line x1="${px}" y1="${py}" x2="${labelX}" y2="${labelY}" stroke="${cssVar(o.color)}" stroke-width="${curVB.w*0.004}" stroke-dasharray="${curVB.w*0.012} ${curVB.w*0.012}" opacity=".85"/>
+    <circle cx="${px}" cy="${py}" r="${curVB.w*0.012}" fill="${cssVar(o.color)}"/>
     <g>
-      <rect x="${labelX-name.length*fs*0.31-10}" y="${labelY-fs-7}" width="${name.length*fs*0.62+20}" height="${fs+14}" rx="${(fs+14)/2}" fill="#06121d" stroke="${cssVar(o.color)}" stroke-width="${curVB.w*0.0035}" opacity=".94"/>
-      <text x="${labelX}" y="${labelY-1}" text-anchor="middle" font-family="Fredoka,Nunito" font-weight="700" font-size="${fs}" fill="#fff">${o.emoji} ${name}</text>
+      <rect x="${labelX-half}" y="${labelY-pillH/2}" width="${pillW}" height="${pillH}" rx="${pillH/2}" fill="#06121d" stroke="${cssVar(o.color)}" stroke-width="${curVB.w*0.0035}" opacity=".95"/>
+      <text x="${labelX}" y="${labelY}" text-anchor="middle" dominant-baseline="central" font-family="Fredoka,Nunito" font-weight="700" font-size="${fs}" fill="#fff">${label}</text>
     </g>`;
   CALLOUT.style.opacity='1';
 }
