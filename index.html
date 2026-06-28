@@ -185,6 +185,7 @@
     <div class="input-err" id="intro-err"></div>
     <button class="btn btn-primary" onclick="startExpedition()">🚀 Começar a Expedição</button>
   </div>
+  <button class="btn btn-ghost" style="font-size:.85rem;padding:9px 18px" onclick="openTeacher()">👩‍🏫 Painel do professor</button>
 </div>
 
 <!-- ===================== APP ===================== -->
@@ -365,23 +366,44 @@
             </g>
           </g>
 
-          <!-- ===== RIBOSSOMOS ===== -->
-          <g class="organelle ribo-anim" data-id="ribossomo" data-cx="378" data-cy="458" data-r="90">
-            <path d="M322,432 q20,-28 40,0 q20,28 40,0 q20,-28 40,0 q20,28 34,0" fill="none" stroke="url(#riboGrad)" stroke-width="14" stroke-linecap="round" filter="url(#soft)"/>
-            <path d="M322,432 q20,-28 40,0 q20,28 40,0 q20,-28 40,0 q20,28 34,0" fill="none" stroke="#ffb0b0" stroke-width="3.5" stroke-linecap="round" opacity=".5"/>
-            <g fill="url(#riboGrad)">
-              <circle class="ribo-dot" cx="300" cy="470" r="7"/><circle class="ribo-dot" cx="332" cy="488" r="7"/>
-              <circle class="ribo-dot" cx="420" cy="478" r="7"/><circle class="ribo-dot" cx="452" cy="462" r="7"/>
+          <!-- ===== RIBOSSOMOS (aglomerado de grânulos — sem a cobrinha) ===== -->
+          <g class="organelle ribo-anim" data-id="ribossomo" data-cx="378" data-cy="458" data-r="92">
+            <g filter="url(#soft)" fill="url(#riboGrad)">
+              <circle class="ribo-dot" cx="300" cy="468" r="7" style="animation-delay:0s"/>
+              <circle class="ribo-dot" cx="318" cy="452" r="6" style="animation-delay:.2s"/>
+              <circle class="ribo-dot" cx="336" cy="470" r="7" style="animation-delay:.4s"/>
+              <circle class="ribo-dot" cx="354" cy="450" r="6.5" style="animation-delay:.6s"/>
+              <circle class="ribo-dot" cx="372" cy="466" r="7" style="animation-delay:.8s"/>
+              <circle class="ribo-dot" cx="390" cy="448" r="6" style="animation-delay:.1s"/>
+              <circle class="ribo-dot" cx="408" cy="466" r="7" style="animation-delay:.3s"/>
+              <circle class="ribo-dot" cx="426" cy="450" r="6.5" style="animation-delay:.5s"/>
+              <circle class="ribo-dot" cx="444" cy="466" r="7" style="animation-delay:.7s"/>
+              <circle class="ribo-dot" cx="462" cy="452" r="6" style="animation-delay:.9s"/>
+              <circle class="ribo-dot" cx="312" cy="484" r="5.5" style="animation-delay:.35s"/>
+              <circle class="ribo-dot" cx="332" cy="488" r="6" style="animation-delay:.55s"/>
+              <circle class="ribo-dot" cx="352" cy="484" r="5.5" style="animation-delay:.75s"/>
+              <circle class="ribo-dot" cx="372" cy="488" r="6" style="animation-delay:.15s"/>
+              <circle class="ribo-dot" cx="392" cy="484" r="5.5" style="animation-delay:.45s"/>
+              <circle class="ribo-dot" cx="414" cy="488" r="6" style="animation-delay:.65s"/>
+              <circle class="ribo-dot" cx="436" cy="484" r="5.5" style="animation-delay:.85s"/>
+              <circle class="ribo-dot" cx="348" cy="434" r="5" style="animation-delay:.25s"/>
+              <circle class="ribo-dot" cx="392" cy="432" r="5" style="animation-delay:.5s"/>
+              <circle class="ribo-dot" cx="422" cy="476" r="6.5" style="animation-delay:.7s"/>
+            </g>
+            <!-- realces especulares (volume 3D) -->
+            <g fill="#fff" opacity=".4" pointer-events="none">
+              <circle cx="298" cy="465" r="2.4"/><circle cx="334" cy="467" r="2.4"/><circle cx="370" cy="463" r="2.4"/>
+              <circle cx="406" cy="463" r="2.4"/><circle cx="442" cy="463" r="2.4"/><circle cx="420" cy="473" r="2.2"/>
             </g>
             <!-- detalhe ao focar: subunidades maior/menor -->
             <g class="detail">
-              <g transform="translate(360,500)">
+              <g transform="translate(360,506)">
                 <ellipse cx="0" cy="3" rx="16" ry="10" fill="url(#riboGrad)"/>
                 <ellipse cx="0" cy="-8" rx="13" ry="7" fill="#ff8585"/>
                 <ellipse cx="-4" cy="-9" rx="5" ry="2.6" fill="#fff" opacity=".5"/>
               </g>
             </g>
-            <circle cx="362" cy="432" r="20" fill="transparent"/>
+            <circle cx="380" cy="462" r="48" fill="transparent"/>
           </g>
 
           <!-- ===== LISOSSOMOS (esferas 3D com brilho especular) ===== -->
@@ -452,9 +474,22 @@
   <div class="ftitle" id="finish-title">Quiz concluído!</div>
   <div class="fmsg" id="finish-msg"></div>
   <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:8px">
-    <button class="btn btn-primary" onclick="downloadReport()">💾 Baixar respostas (.txt)</button>
+    <button class="btn btn-primary" onclick="downloadReport()">💾 Baixar minhas respostas (.txt)</button>
     <button class="btn btn-ghost" onclick="restartQuiz()">🔄 Refazer o Quiz</button>
     <button class="btn btn-ghost" onclick="backToExplore()">🔍 Explorar</button>
+  </div>
+  <button class="btn btn-ghost" style="font-size:.85rem;padding:9px 18px;margin-top:4px" onclick="openTeacher()">👩‍🏫 Painel do professor</button>
+</div>
+
+<!-- ===================== PAINEL DO PROFESSOR (banco de dados local) ===================== -->
+<div class="finish" id="teacher-panel">
+  <div class="ftitle">👩‍🏫 Painel do Professor</div>
+  <div class="fmsg" id="teacher-summary"></div>
+  <div id="teacher-list" style="width:100%;max-width:540px;display:flex;flex-direction:column;gap:10px"></div>
+  <div class="fmsg" style="font-size:.82rem;max-width:480px">💡 Os resultados ficam salvos <strong>neste navegador/dispositivo</strong>. Baixe um arquivo por turma (CSV abre no Excel/Google Planilhas).</div>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:8px">
+    <button class="btn btn-primary" onclick="closeTeacher()">← Voltar</button>
+    <button class="btn btn-ghost" onclick="clearDB()" style="border-color:var(--bad);color:var(--bad)">🗑️ Apagar tudo</button>
   </div>
 </div>
 
@@ -480,7 +515,7 @@ const ORG = {
     fact:"Células que gastam muita energia — como as do MÚSCULO — têm um montão de mitocôndrias. Curiosidade: ela tem seu próprio DNA!",
     practical:"Pequena demais para a lâmina da escola, mas aparece bem nos modelos celulares 3D, com as dobrinhas internas (cristas)."},
   ribossomo:{name:"Ribossomo",emoji:"🏭",color:"var(--c-ribo)",rgb:"226,59,59",tag:"Fábrica de proteínas",
-    func:"São as 'fábricas de proteínas'! São o ZIGUEZAGUE VERMELHO e os pontinhos vermelhos espalhados. Leem as instruções do DNA e montam as proteínas.",
+    func:"São as 'fábricas de proteínas'! São os GRÃOZINHOS VERMELHOS espalhados pelo citoplasma (e também grudados no retículo). Leem as instruções do DNA e montam as proteínas.",
     fact:"São tão pequenos que existem AOS MILHÕES dentro de uma única célula. Podem ficar soltos ou grudados no retículo.",
     practical:"Invisíveis no microscópio da escola, mas representados aqui pelas estruturas vermelhas."},
   re:{name:"Retículo Endoplasmático",emoji:"🛣️",color:"var(--c-re)",rgb:"63,158,46",tag:"Estradas internas",
@@ -509,7 +544,7 @@ const QUIZ = {
 };
 
 let playerName="Explorador(a)", playerClass="—", sessionStart=null;
-let score=0, mode="explore";
+let score=0, mode="explore", finishSaved=false;
 let discovered=new Set();
 let quizAnswered=new Set(), quizCorrect=0;
 let sessionLog=[];                 // registro de respostas do quiz p/ o arquivo texto
@@ -637,7 +672,7 @@ function setMode(m){
   document.getElementById('btn-quiz').classList.toggle('active',m==='quiz');
   clearDim(); clearQuizDone(); zoomReset();
   if(m==='explore'){document.getElementById('stage-hint').textContent='💡 Toque em qualquer organela para dar zoom 3D';renderExploreIntro();}
-  else{quizAnswered=new Set();quizCorrect=0;sessionLog=[];document.getElementById('stage-hint').textContent='🎯 Toque numa organela para responder!';renderQuizIntro();}
+  else{quizAnswered=new Set();quizCorrect=0;sessionLog=[];finishSaved=false;document.getElementById('stage-hint').textContent='🎯 Toque numa organela para responder!';renderQuizIntro();}
 }
 function clearDim(){document.querySelectorAll('.organelle').forEach(e=>e.classList.remove('dimmed'));}
 function clearQuizDone(){document.querySelectorAll('.organelle').forEach(e=>e.classList.remove('quizdone'));}
@@ -728,7 +763,7 @@ function answerQuiz(btn,id){
   if(ok){score+=25;quizCorrect++;bump();burstConfetti(.4);}else{score=Math.max(0,score-5);}
   document.getElementById('score').textContent=score;
   // registra no relatório
-  sessionLog.push({organela:ORG[id].name,pergunta:QUIZ[id].q,resposta:chosen,correta:QUIZ[id].correct,acertou:ok});
+  sessionLog.push({id,organela:ORG[id].name,pergunta:QUIZ[id].q,resposta:chosen,correta:QUIZ[id].correct,acertou:ok});
   document.querySelector(`.organelle[data-id="${id}"]`)?.classList.add('quizdone');
   zoomReset();
   const fb=document.getElementById('qfb');
@@ -752,6 +787,22 @@ function showFinish(){
   document.getElementById('finish-title').textContent=title;
   document.getElementById('finish-msg').textContent=`${playerName} • ${playerClass}  —  Acertos: ${quizCorrect}/${TOTAL} • Pontos: ${score}.  ${msg}`;
   document.getElementById('finish').classList.add('show');
+  saveSessionToDB();
+}
+
+/* salva o resultado deste aluno no "banco de dados" local (localStorage), agrupado por turma */
+function saveSessionToDB(){
+  if(finishSaved)return;
+  const respostas={};
+  sessionLog.forEach(r=>{respostas[r.id]={resposta:r.resposta,correta:r.correta,acertou:r.acertou};});
+  const rec={
+    nome:playerName, turma:playerClass,
+    data:new Date().toLocaleString('pt-BR'),
+    acertos:quizCorrect, total:TOTAL,
+    pct:Math.round((quizCorrect/TOTAL)*100), pontos:score,
+    respostas
+  };
+  if(dbAdd(rec))finishSaved=true;
 }
 
 /* ===================== RELATÓRIO EM ARQUIVO TEXTO ===================== */
@@ -782,14 +833,82 @@ function buildReport(){
   return t;
 }
 function downloadReport(){
-  const txt=buildReport();
-  const blob=new Blob([txt],{type:'text/plain;charset=utf-8'});
+  downloadFile(buildReport(),`expedicao_celular_${safe(playerName)}_${safe(playerClass)}.txt`,'text/plain');
+}
+
+/* ===================== BANCO DE DADOS LOCAL + PAINEL DO PROFESSOR ===================== */
+const DB_KEY='expedicao_celular_db_v1';
+function dbLoad(){try{return JSON.parse(localStorage.getItem(DB_KEY))||[];}catch(e){return [];}}
+function dbSave(a){try{localStorage.setItem(DB_KEY,JSON.stringify(a));return true;}catch(e){alert('Não foi possível salvar neste navegador (armazenamento bloqueado).');return false;}}
+function dbAdd(rec){const a=dbLoad();a.push(rec);return dbSave(a);}
+
+function safe(s){return String(s||'').replace(/[^\p{L}\p{N}]+/gu,'_').replace(/^_+|_+$/g,'').slice(0,40)||'sem_nome';}
+function esc(s){return String(s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+function b64(s){return btoa(unescape(encodeURIComponent(s)));}
+function ub64(s){return decodeURIComponent(escape(atob(s)));}
+function downloadFile(content,filename,mime){
+  const blob=new Blob([content],{type:mime+';charset=utf-8'});
   const url=URL.createObjectURL(blob);
-  const safe=s=>s.replace(/[^\p{L}\p{N}]+/gu,'_').replace(/^_+|_+$/g,'').slice(0,40)||'aluno';
-  const a=document.createElement('a');
-  a.href=url; a.download=`expedicao_celular_${safe(playerName)}_${safe(playerClass)}.txt`;
-  document.body.appendChild(a); a.click(); a.remove();
+  const a=document.createElement('a');a.href=url;a.download=filename;
+  document.body.appendChild(a);a.click();a.remove();
   setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+
+function openTeacher(){buildTeacher();document.getElementById('teacher-panel').classList.add('show');}
+function closeTeacher(){document.getElementById('teacher-panel').classList.remove('show');}
+function buildTeacher(){
+  const all=dbLoad(), byTurma={};
+  all.forEach(r=>{(byTurma[r.turma]=byTurma[r.turma]||[]).push(r);});
+  const turmas=Object.keys(byTurma).sort((a,b)=>a.localeCompare(b,'pt-BR'));
+  document.getElementById('teacher-summary').textContent =
+    all.length? `${all.length} resultado(s) salvo(s) em ${turmas.length} turma(s).`
+              : 'Ainda não há resultados salvos neste dispositivo.';
+  const list=document.getElementById('teacher-list');
+  list.innerHTML = turmas.length ? turmas.map(t=>{
+    const recs=byTurma[t];
+    const media=Math.round(recs.reduce((s,r)=>s+r.pct,0)/recs.length);
+    return `<div class="tcard">
+      <div><div class="tname">🏫 ${esc(t)}</div><div class="tmeta">${recs.length} aluno(s) • média ${media}%</div></div>
+      <div class="tbtns">
+        <button class="btn btn-primary tbtn" onclick="exportTurma('${b64(t)}','csv')">📊 CSV</button>
+        <button class="btn btn-ghost tbtn" onclick="exportTurma('${b64(t)}','txt')">📄 TXT</button>
+      </div></div>`;
+  }).join('') : '<div style="color:var(--muted)">Nenhuma turma registrada ainda.</div>';
+}
+function exportTurma(enc,fmt){
+  const turma=ub64(enc);
+  const recs=dbLoad().filter(r=>r.turma===turma);
+  if(!recs.length)return;
+  if(fmt==='csv') downloadFile(turmaCSV(recs),`turma_${safe(turma)}.csv`,'text/csv');
+  else            downloadFile(turmaTXT(recs,turma),`turma_${safe(turma)}.txt`,'text/plain');
+}
+function csvCell(v){v=String(v==null?'':v);if(/[";\r\n]/.test(v))v='"'+v.replace(/"/g,'""')+'"';return v;}
+function turmaCSV(recs){
+  const ids=Object.keys(ORG);
+  const head=['Nome','Turma','Data','Acertos','Total','Percentual(%)','Pontos',...ids.map(id=>ORG[id].name)];
+  const rows=recs.map(r=>{
+    const base=[r.nome,r.turma,r.data,r.acertos,r.total,r.pct,r.pontos];
+    const ans=ids.map(id=>{const x=r.respostas&&r.respostas[id];return x?`${x.resposta} ${x.acertou?'(OK)':'(X)'}`:'-';});
+    return [...base,...ans].map(csvCell).join(';');
+  });
+  return '﻿'+[head.map(csvCell).join(';'),...rows].join('\r\n');
+}
+function turmaTXT(recs,turma){
+  const ids=Object.keys(ORG);
+  let t=`===== TURMA: ${turma} =====\nTotal de alunos: ${recs.length}\n`;
+  const media=Math.round(recs.reduce((s,r)=>s+r.pct,0)/recs.length);
+  t+=`Média da turma: ${media}%\n\n`;
+  recs.forEach((r,i)=>{
+    t+=`${i+1}) ${r.nome}  —  ${r.acertos}/${r.total} (${r.pct}%) • ${r.pontos} pts • ${r.data}\n`;
+    ids.forEach(id=>{const x=r.respostas&&r.respostas[id];if(x)t+=`     • ${ORG[id].name}: ${x.resposta} ${x.acertou?'[OK]':'[X] (correta: '+x.correta+')'}\n`;});
+    t+='\n';
+  });
+  return t;
+}
+function clearDB(){
+  if(confirm('Apagar TODOS os resultados salvos neste dispositivo? Esta ação não pode ser desfeita.')){
+    dbSave([]);buildTeacher();
+  }
 }
 
 /* ===================== EFEITOS ===================== */
@@ -806,6 +925,11 @@ renderExploreIntro();
 </script>
 
 <style>
+.tcard{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--panel);border:1.5px solid var(--border);border-radius:14px;padding:13px 16px;text-align:left}
+.tname{font-family:'Fredoka',sans-serif;font-weight:700;font-size:1.1rem}
+.tmeta{color:var(--muted);font-size:.82rem;font-weight:700;margin-top:2px}
+.tbtns{display:flex;gap:8px;flex-shrink:0}
+.tbtn{padding:9px 14px;font-size:.85rem}
 .nuc-anim .nucleolus{animation:nucPulse 2.8s ease-in-out infinite;transform-origin:center;transform-box:fill-box}
 @keyframes nucPulse{0%,100%{transform:scale(1);opacity:.95}50%{transform:scale(1.12);opacity:1}}
 .lyso-anim>g:first-of-type circle{animation:lysoPulse 2.6s ease-in-out infinite;transform-origin:center;transform-box:fill-box}
