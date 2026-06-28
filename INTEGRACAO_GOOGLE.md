@@ -4,6 +4,11 @@ Quando cada aluno usa **um tablet diferente**, os resultados não se juntam sozi
 Para reuni-los em **uma única planilha** (com **uma aba por turma**), use o passo a passo abaixo.
 É **gratuito**, usa só a conta Google da professora e leva ~10 minutos para configurar **uma vez**.
 
+> **Setup recomendado:** o jogo é hospedado (ex.: **Vercel**) e a professora compartilha
+> **um único link**. A URL da planilha fica embutida no `index.html` antes de publicar,
+> então **todos os tablets que abrirem o link já enviam para a mesma planilha** — sem
+> precisar configurar tablet por tablet.
+
 > Resumo de como funciona: cada tablet, ao terminar o quiz, envia o resultado para um
 > "app da web" do Google Apps Script, que grava a linha do aluno na aba da turma.
 > Se o tablet estiver sem internet na hora, o resultado fica guardado e é enviado
@@ -36,27 +41,52 @@ Para reuni-los em **uma única planilha** (com **uma aba por turma**), use o pas
    Exemplo: `https://script.google.com/macros/s/AKfycb..../exec`
 
 ## 4) Conectar o jogo a essa URL
-Há duas formas (escolha uma):
 
-**A) Deixar já configurado no arquivo (recomendado para distribuir nos tablets)**
+> **Cenário recomendado: 1 link na Vercel para todos os tablets.**
+> Como o jogo vai ficar hospedado (ex.: Vercel) e os alunos abrem **o mesmo link**,
+> basta colar a URL **uma vez** no arquivo, **antes de publicar**. Aí **todo tablet
+> que abrir o link já vem configurado** — não precisa mexer em tablet nenhum.
+
+**A) Deixar configurado no arquivo (antes de publicar na Vercel) — recomendado**
 1. Abra o `index.html`.
 2. Lá no início do `<script>`, troque a linha:
    ```js
    const SHEET_ENDPOINT = "";
    ```
-   por:
+   por (com a sua URL terminada em `/exec`):
    ```js
    const SHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycb..../exec";
    ```
-3. Salve e copie esse mesmo `index.html` para todos os tablets.
+3. Salve, faça o deploy na Vercel (ver seção **5**) e compartilhe o link.
 
-**B) Colar a URL em cada tablet (sem mexer no arquivo)**
-1. Abra o jogo no tablet → **👩‍🏫 Painel do professor**.
+**B) Colar a URL pelo Painel do Professor (sem mexer no arquivo) — alternativa**
+> Atenção: este modo salva a URL **só naquele tablet** (fica no navegador do tablet).
+> Serve para um teste rápido ou para um tablet avulso; para a turma toda, prefira a opção A.
+1. Abra o jogo → **👩‍🏫 Painel do professor**.
 2. Em **“☁️ Envio automático para o Google Planilhas”**, cole a URL e toque em **💾 Salvar URL**.
 3. O status deve mudar para **✅ Configurado**.
 
-## 5) Testar
-1. Faça um quiz de teste em um tablet (qualquer turma, ex.: "TESTE").
+## 5) Publicar na Vercel (link único para compartilhar)
+Você só precisa do arquivo `index.html` (já com a URL colada no passo 4A).
+
+**Opção mais simples — sem instalar nada (arrastar e soltar):**
+1. Crie uma conta gratuita em <https://vercel.com> e faça login.
+2. Coloque o `index.html` dentro de uma pasta (sozinho já basta).
+3. No painel da Vercel, clique em **Add New… → Project → Deploy** e
+   **arraste a pasta** (ou use a opção de upload). A Vercel publica e te dá um link
+   como `https://expedicao-celular.vercel.app`.
+4. Compartilhe esse link com a turma. Pronto. ✅
+
+**Opção via GitHub (atualiza sozinho a cada mudança):**
+1. Suba o projeto para um repositório no GitHub.
+2. Na Vercel: **Add New… → Project → Import** o repositório → **Deploy**.
+3. A cada `git push`, a Vercel republica automaticamente.
+
+> Dica: ao trocar a `SHEET_ENDPOINT` depois, lembre de **fazer um novo deploy**
+> para o link passar a usar a URL nova.
+
+## 6) Testar
+1. Abra o link publicado em um tablet e faça um quiz de teste (turma, ex.: "TESTE").
 2. Abra a planilha: deve aparecer uma aba **TESTE** com a linha do aluno.
 3. Pode apagar a aba/linha de teste depois.
 
@@ -76,6 +106,12 @@ Há duas formas (escolha uma):
 
 ## Perguntas comuns
 
+**Funciona se eu publicar na Vercel e só compartilhar o link?**
+Sim — é o jeito recomendado. Como todos abrem **o mesmo link**, basta colar a
+`SHEET_ENDPOINT` no `index.html` **uma vez antes de publicar** (passo 4A): todos os
+tablets que abrirem o link já enviam para a sua planilha, sem configurar tablet por tablet.
+O envio funciona normalmente de um site `https://...vercel.app` para o Google.
+
 **E se um tablet estiver sem internet?**
 O resultado fica guardado no tablet e é enviado sozinho quando a internet voltar
 (ou quando alguém abrir o jogo de novo nesse tablet). No Painel do Professor o status
@@ -83,12 +119,18 @@ mostra quantos resultados estão **aguardando envio**, e há o botão **📤 Env
 
 **Preciso atualizar o script depois.** 
 Edite o código e use **Implantar → Gerenciar implantações → ✏️ Editar → Nova versão**.
-Assim a URL `/exec` continua a mesma (não precisa reconfigurar os tablets).
+Assim a URL `/exec` continua a mesma (não precisa republicar o jogo só por isso).
 
-**É seguro?**
-A URL aceita apenas **gravar** resultados na sua planilha. Não expõe os dados já
-gravados (quem tiver a URL não consegue ler a planilha). Ainda assim, evite divulgá-la
-publicamente.
+**É seguro deixar a URL dentro de um site público (Vercel)?**
+A URL aceita **apenas gravar** linhas na planilha — quem a tiver **não consegue ler**
+os dados já registrados. Como o site é público, alguém curioso poderia ver a URL no
+código-fonte e, no pior caso, inserir linhas a mais; para uma atividade escolar isso é
+risco baixo. Se quiser reduzir ainda mais:
+- evite divulgar o link fora da turma;
+- depois da aula, é só **trocar a URL** (criar uma nova implantação) ou apagar a
+  implantação antiga — assim a URL antiga para de funcionar;
+- opcionalmente, dá para adicionar no `google-apps-script.gs` uma "senha" simples
+  (um campo extra que o script confere antes de gravar). Posso preparar isso se quiser.
 
 **Backup:** mesmo com o envio para a nuvem, cada tablet guarda uma cópia local.
 No Painel do Professor dá para baixar CSV/TXT por turma direto do tablet.
